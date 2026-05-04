@@ -1735,23 +1735,26 @@
 			#map-container {
 				width: 100%;
 				height: 100%;
-				position: fixed;
+				position: absolute;
 				top: 0;
 				left: 0;
 				z-index: 0;
+				pointer-events: none;
 			}
 			#root {
 				position: relative;
-				z-index: 10;
+				z-index: 1;
 			}
 			.leaflet-container {
 				width: 100%;
 				height: 100%;
+				pointer-events: auto;
 			}
 		</style>
 	</head>
 	<body>
 		<div id="root">
+			<div id="map-container"></div>
 			<div class="css-g5y9jx r-13awgt0">
 				<!--$-->
 				<div
@@ -1979,13 +1982,12 @@
 				<!--/$-->
 			</div>
 		</div>
-		<div id="map-container"></div>
 		<script>
 			let mapInitialized = false;
 			const initMap = () => {
-				if (mapInitialized || typeof L === 'undefined') {
-					if (typeof L === 'undefined') {
-						console.log('Leaflet not loaded yet, retrying...');
+				if (mapInitialized || typeof L === "undefined") {
+					if (typeof L === "undefined") {
+						console.log("Leaflet not loaded yet, retrying...");
 						setTimeout(initMap, 500);
 					}
 					return;
@@ -2006,25 +2008,31 @@
 						.bindPopup("Pickup Location")
 						.addTo(map);
 					mapInitialized = true;
-					console.log('Map initialized successfully');
+					console.log("Map initialized successfully");
 				} catch (e) {
 					console.error("Map init error:", e);
 					setTimeout(initMap, 1000);
 				}
 			};
-			
+
 			// Wait for Leaflet to load
 			const waitForLeaflet = setInterval(() => {
-				if (typeof L !== 'undefined') {
+				if (typeof L !== "undefined") {
 					clearInterval(waitForLeaflet);
 					initMap();
 				}
 			}, 100);
-			
+
 			// Fallback timers
-			setTimeout(() => { if (typeof L !== 'undefined') initMap(); }, 1000);
-			window.addEventListener("load", () => { if (typeof L !== 'undefined') initMap(); });
-			document.addEventListener("DOMContentLoaded", () => setTimeout(initMap, 500));
+			setTimeout(() => {
+				if (typeof L !== "undefined") initMap();
+			}, 1000);
+			window.addEventListener("load", () => {
+				if (typeof L !== "undefined") initMap();
+			});
+			document.addEventListener("DOMContentLoaded", () =>
+				setTimeout(initMap, 500),
+			);
 		</script>
 		<script
 			src="/_expo/static/js/web/entry-623f71de51369f9bf1ac4c4c0fad063f.js"
