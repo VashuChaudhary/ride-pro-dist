@@ -1735,10 +1735,14 @@
 			#map-container {
 				width: 100%;
 				height: 100%;
-				position: absolute;
+				position: fixed;
 				top: 0;
 				left: 0;
-				z-index: 1;
+				z-index: 0;
+			}
+			#root {
+				position: relative;
+				z-index: 10;
 			}
 			.leaflet-container {
 				width: 100%;
@@ -1893,11 +1897,14 @@
 		<script>
 			let mapInitialized = false;
 			const initMap = () => {
-				if (
-					mapInitialized ||
-					document.getElementById("map-container").children.length > 0
-				)
+				if (mapInitialized || typeof L === 'undefined') {
+					if (typeof L === 'undefined') {
+						console.log('Leaflet not loaded yet, retrying...');
+						setTimeout(initMap, 500);
+					}
 					return;
+				}
+
 				try {
 					const mapEl = document.getElementById("map-container");
 					if (!mapEl) return;
@@ -1913,16 +1920,25 @@
 						.bindPopup("Driver Location - Delhi")
 						.addTo(map);
 					mapInitialized = true;
+					console.log('Map initialized successfully');
 				} catch (e) {
 					console.error("Map init error:", e);
 					setTimeout(initMap, 1000);
 				}
 			};
-			setTimeout(initMap, 2000);
-			window.addEventListener("load", initMap);
-			document.addEventListener("DOMContentLoaded", () =>
-				setTimeout(initMap, 500),
-			);
+			
+			// Wait for Leaflet to load
+			const waitForLeaflet = setInterval(() => {
+				if (typeof L !== 'undefined') {
+					clearInterval(waitForLeaflet);
+					initMap();
+				}
+			}, 100);
+			
+			// Fallback timers
+			setTimeout(() => { if (typeof L !== 'undefined') initMap(); }, 1000);
+			window.addEventListener("load", () => { if (typeof L !== 'undefined') initMap(); });
+			document.addEventListener("DOMContentLoaded", () => setTimeout(initMap, 500));
 		</script>
 		<script
 			src="/_expo/static/js/web/entry-623f71de51369f9bf1ac4c4c0fad063f.js"
